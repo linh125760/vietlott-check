@@ -17,7 +17,7 @@ Bản chính thức là **web tĩnh**: trình duyệt tự đối chiếu, dữ 
 
 Workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
-- Chạy lúc **19:15, 21:15 và 07:30 giờ VN** mỗi ngày, khi push lên `main`, hoặc bấm chạy tay.
+- Chạy lúc **19:35, 21:20 và 07:35 giờ VN** mỗi ngày (sau các mốc vietlott-data cập nhật ~19:01 và ~07:01), khi push lên `main`, hoặc bấm chạy tay.
 - `npm test` → `npm run sync` → commit `data/*.json` **chỉ khi có kỳ mới / bản ghi được sửa** → `npm run build` → deploy.
 - Nếu đồng bộ lỗi (mất mạng, nguồn bị chặn), vẫn deploy dữ liệu đã có — không bao giờ đăng dữ liệu giả.
 - Mỗi lần chạy có bảng tóm tắt (số kỳ, kỳ mới, vietlott.vn có kết nối được không, kết quả kiểm tra chéo) trong trang chi tiết của lần chạy đó.

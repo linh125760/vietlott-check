@@ -27,7 +27,7 @@ const Products = require('../../shared/products');
       const isChanged = data.meta.version !== beforeVersion;
       if (isChanged) changed = true;
       const newDraws = beforeLast ? Number(data.meta.lastDraw.id) - Number(beforeLast) : data.meta.count;
-      summary.push(`| ${id} | ${data.meta.count} | #${data.meta.lastDraw.id} (${data.meta.lastDraw.date}) | ${newDraws > 0 ? '+' + newDraws : (isChanged ? 'đã sửa dữ liệu' : '0')} | ${r.official.reachable ? '✅ kết nối được' : '⚠️ không kết nối được'} | ${r.verification.mismatches}/${r.verification.checked} sai lệch | ${r.warnings.join('; ') || ''} |`);
+      summary.push(`| ${id} | ${data.meta.count} | #${data.meta.lastDraw.id} (${data.meta.lastDraw.date}) | ${newDraws > 0 ? '+' + newDraws : (isChanged ? 'đã sửa dữ liệu' : '0')} | ${r.official.reachable ? '✅ kết nối được' : '⚠️ bị chặn / không kết nối — dùng dữ liệu vietlott-data'} | ${r.verification.mismatches}/${r.verification.checked} sai lệch | ${r.warnings.join('; ') || ''} |`);
     } catch (err) {
       failed = true;
       console.error(`✖ ${id}: ${err.message}`);

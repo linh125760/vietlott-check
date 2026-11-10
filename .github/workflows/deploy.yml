@@ -1,11 +1,13 @@
 name: Cập nhật dữ liệu & deploy GitHub Pages
 
 on:
-  # Giờ UTC. Vietlott quay khoảng 18h (giờ VN = UTC+7), có kết quả khoảng 18h30.
+  # Giờ UTC (giờ VN = UTC+7). Vietlott quay khoảng 18h, có kết quả khoảng 18h30.
+  # vietlott.vn chặn IP máy chủ GitHub (HTTP 403) nên kỳ mới đến từ repo vietlott-data,
+  # repo này cập nhật khoảng 07:01 và 19:01 giờ VN → chạy sau các mốc đó.
   schedule:
-    - cron: '15 12 * * *'   # 19:15 giờ VN — lấy kết quả tối nay
-    - cron: '15 14 * * *'   # 21:15 giờ VN — chạy lại phòng khi lần trước trễ/lỗi
-    - cron: '30 0 * * *'    # 07:30 giờ VN — dự phòng nếu vietlott.vn chặn, chờ nguồn GitHub cập nhật
+    - cron: '35 12 * * *'   # 19:35 giờ VN — lấy kết quả tối nay
+    - cron: '20 14 * * *'   # 21:20 giờ VN — chạy lại phòng khi lần trước trễ/lỗi
+    - cron: '35 0 * * *'    # 07:35 giờ VN — bắt bản cập nhật buổi sáng của vietlott-data
   workflow_dispatch:         # bấm chạy tay trong tab Actions
   push:
     branches: [main]
@@ -24,11 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci

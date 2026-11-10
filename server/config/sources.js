@@ -15,7 +15,7 @@
  */
 module.exports = {
   github: {
-    baseUrl: 'https://raw.githubusercontent.com/vietvudanh/vietlott-data/master/data/',
+    baseUrl: 'https://raw.githubusercontent.com/vietvudanh/vietlott-data/main/data/',
     files: { mega645: 'power645.jsonl', power655: 'power655.jsonl' },
     timeoutMs: 30000
   },

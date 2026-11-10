@@ -48,6 +48,11 @@ class VietlottOfficialProvider extends BaseProvider {
     const game = this.cfg.games[product.id];
     if (!game) throw new ProviderError(`${this.name} không hỗ trợ ${product.name}`, { code: 'UNSUPPORTED' });
     const id = toDrawId(drawNo);
+    // Đã bị từ chối truy cập (403/401) → không gửi thêm request trong một khoảng thời gian.
+    // Tôn trọng việc chặn: không giả danh trình duyệt để vượt qua.
+    if (this.blockedUntil && Date.now() < this.blockedUntil) {
+      throw new ProviderError(`${this.name}: đã từ chối truy cập (${this.blockedReason}), tạm dừng gọi nguồn này`, { code: 'BLOCKED' });
+    }
     let lastErr;
     for (let attempt = 0; attempt <= this.cfg.retries; attempt++) {
       try {
@@ -66,6 +71,11 @@ class VietlottOfficialProvider extends BaseProvider {
         return parsed;
       } catch (err) {
         lastErr = err;
+        if (err.code === 'HTTP_403' || err.code === 'HTTP_401') {
+          this.blockedUntil = Date.now() + 30 * 60 * 1000;
+          this.blockedReason = err.code.replace('HTTP_', 'HTTP ');
+          break;
+        }
         if (err.code === 'PARSE' || err.code === 'MISMATCH') break;
         await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
       }

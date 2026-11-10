@@ -117,3 +117,13 @@ test('Xuất dữ liệu tĩnh: định dạng gọn mà frontend đọc', () =>
   assert.equal(out.meta.officialReachable, true);
   assert.equal(out.meta.report, undefined); // không lộ báo cáo nội bộ chi tiết
 });
+
+test('vietlott.vn trả 403 → dừng gọi ngay, không thử lại liên tục', async () => {
+  const p = new VietlottOfficialProvider();
+  let calls = 0;
+  p.ajax = async () => { calls++; throw new ProviderError('vietlott.vn: HTTP 403', { code: 'HTTP_403' }); };
+  await assert.rejects(p.fetchDraw(power, 1), /403/);
+  assert.equal(calls, 1); // không retry khi bị từ chối
+  await assert.rejects(p.fetchDraw(power, 2), (e) => e.code === 'BLOCKED');
+  assert.equal(calls, 1); // các kỳ tiếp theo không gửi request
+});
