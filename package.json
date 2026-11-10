@@ -1,0 +1,21 @@
+{
+  "name": "vietlott-checker",
+  "version": "1.0.0",
+  "description": "Tra cứu và đối chiếu vé Vietlott với lịch sử kết quả quay thưởng",
+  "main": "server/index.js",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "sync": "node server/cli/sync.js",
+    "build": "node server/cli/build.js",
+    "preview:static": "node server/cli/preview-static.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

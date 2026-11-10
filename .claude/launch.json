@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vietlott-checker",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server/index.js"],
+      "port": 3000
+    },
+    {
+      "name": "static-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server/cli/preview-static.js"],
+      "port": 4173
+    }
+  ]
+}

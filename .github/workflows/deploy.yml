@@ -1,0 +1,72 @@
+name: Cập nhật dữ liệu & deploy GitHub Pages
+
+on:
+  # Giờ UTC. Vietlott quay khoảng 18h (giờ VN = UTC+7), có kết quả khoảng 18h30.
+  schedule:
+    - cron: '15 12 * * *'   # 19:15 giờ VN — lấy kết quả tối nay
+    - cron: '15 14 * * *'   # 21:15 giờ VN — chạy lại phòng khi lần trước trễ/lỗi
+    - cron: '30 0 * * *'    # 07:30 giờ VN — dự phòng nếu vietlott.vn chặn, chờ nguồn GitHub cập nhật
+  workflow_dispatch:         # bấm chạy tay trong tab Actions
+  push:
+    branches: [main]
+
+permissions:
+  contents: write   # commit dữ liệu mới vào repo
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Kiểm thử thuật toán & dữ liệu
+        run: npm test
+
+      - name: Đồng bộ dữ liệu (GitHub dataset + vietlott.vn)
+        id: sync
+        # Lỗi mạng không chặn deploy: vẫn giữ và đăng dữ liệu đã kiểm định trước đó.
+        continue-on-error: true
+        run: npm run sync
+
+      - name: Lưu dữ liệu mới vào repo
+        # Chỉ commit khi có kỳ mới hoặc bản ghi được sửa (không commit chỉ vì đổi giờ đồng bộ)
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/*.json
+          git diff --cached --quiet || git commit -m "data: cập nhật kết quả $(TZ=Asia/Ho_Chi_Minh date '+%Y-%m-%d %H:%M')"
+          git pull --rebase && git push
+
+      - name: Build web tĩnh
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

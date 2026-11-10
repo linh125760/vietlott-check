@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vietlott Checker</title>
+  <meta name="description" content="Đối chiếu vé Vietlott với lịch sử kết quả quay thưởng Mega 6/45, Power 6/55.">
+  <meta name="theme-color" content="#10131C">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23F5C542'/%3E%3Ctext x='16' y='21' font-size='14' font-family='Arial' font-weight='700' text-anchor='middle' fill='%2310131C'%3EVC%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="./" aria-label="Vietlott Checker">
+        <span class="brand__balls" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand__text"><strong>Vietlott</strong> Checker</span>
+      </a>
+      <div class="data-status" id="dataStatus" aria-live="polite"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1>Đối chiếu vé với <span class="text-gradient">toàn bộ lịch sử</span> quay thưởng</h1>
+        <p class="hero__sub">Nhập các dãy số trên vé, hệ thống so khớp với mọi kỳ quay đã diễn ra và tìm những kỳ có nhiều số trùng nhất.</p>
+      </div>
+      <div class="disclaimer" role="note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22L12 2Zm0 6 1 7h-2l1-7Zm-1 9h2v2h-2v-2Z" fill="currentColor"/></svg>
+        <p><strong>Công cụ thống kê lịch sử.</strong> Việc trùng 3, 4, 5 hay 6 số với một kỳ quay trong quá khứ <u>không</u> có nghĩa vé hiện tại đã trúng thưởng, và không dự đoán kết quả tương lai.</p>
+      </div>
+    </section>
+
+    <nav class="products" id="productTabs" role="tablist" aria-label="Chọn sản phẩm"></nav>
+
+    <div class="layout">
+      <!-- ============ CỘT NHẬP VÉ ============ -->
+      <aside class="panel panel--input" id="inputPanel">
+        <div class="panel__head">
+          <h2 id="editorTitle">Nhập dãy số</h2>
+          <span class="chip chip--muted" id="editorRange"></span>
+        </div>
+
+        <div id="ticketEditor"></div>
+
+        <div class="panel__section">
+          <div class="panel__head panel__head--sm">
+            <h3>Danh sách vé <span class="count-pill" id="ticketCount">0</span></h3>
+            <button class="btn btn--ghost btn--xs" id="clearAllBtn" type="button">Xóa toàn bộ</button>
+          </div>
+          <ul class="ticket-list" id="ticketList"></ul>
+        </div>
+
+        <div class="panel__section options" id="checkOptions">
+          <label class="field">
+            <span class="field__label">Ngưỡng tối thiểu hiển thị</span>
+            <div class="stepper" id="thresholdStepper">
+              <button type="button" data-step="-1" aria-label="Giảm ngưỡng">−</button>
+              <output id="thresholdValue">3</output>
+              <button type="button" data-step="1" aria-label="Tăng ngưỡng">+</button>
+              <span class="stepper__unit">số trùng</span>
+            </div>
+          </label>
+          <fieldset class="field segmented-field" id="powerModeField" hidden>
+            <legend class="field__label">Chế độ đối chiếu Power 6/55</legend>
+            <div class="segmented" role="radiogroup">
+              <label><input type="radio" name="powerMode" value="main" checked><span>Chỉ 6 số chính</span></label>
+              <label><input type="radio" name="powerMode" value="rules"><span>Kèm số Power</span></label>
+            </div>
+            <p class="hint" id="powerModeHint"></p>
+          </fieldset>
+        </div>
+
+        <button class="btn btn--primary btn--block btn--lg" id="checkBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 0 1 6.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z" fill="currentColor"/></svg>
+          KIỂM TRA KẾT QUẢ
+        </button>
+        <p class="form-error" id="checkError" role="alert"></p>
+      </aside>
+
+      <!-- ============ CỘT KẾT QUẢ ============ -->
+      <section class="results" id="resultsArea" aria-live="polite">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state__balls" aria-hidden="true">
+            <span class="ball ball--lg">07</span><span class="ball ball--lg ball--hit">18</span><span class="ball ball--lg">29</span><span class="ball ball--lg ball--hit">36</span>
+          </div>
+          <h2>Sẵn sàng đối chiếu</h2>
+          <p>Thêm một hoặc nhiều dãy số rồi bấm <strong>KIỂM TRA KẾT QUẢ</strong>. Kết quả sẽ liệt kê các kỳ quay có từ <span data-threshold-text>3</span> số trùng trở lên.</p>
+        </div>
+
+        <div class="progress-card" id="progressCard" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="progress-card__body">
+            <p id="progressText">Đang đối chiếu…</p>
+            <div class="progressbar"><span id="progressBar"></span></div>
+          </div>
+        </div>
+
+        <div id="resultsContent" hidden>
+          <div id="summary"></div>
+          <div class="charts" id="charts"></div>
+          <div id="resultsView"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer container">
+    <p>Dữ liệu: <a href="https://vietlott.vn" target="_blank" rel="noopener">vietlott.vn</a> (nguồn chính thức, kiểm định &amp; bổ sung) · <a href="https://github.com/vietvudanh/vietlott-data" target="_blank" rel="noopener">vietlott-data</a> (lịch sử hàng loạt). Dữ liệu tự động cập nhật hằng ngày sau giờ quay thưởng. Vietlott Checker không liên kết với Vietlott.</p>
+    <p>Chơi có trách nhiệm. Kết quả chính thức luôn theo công bố của Vietlott.</p>
+  </footer>
+
+  <div class="modal" id="drawModal" hidden role="dialog" aria-modal="true" aria-labelledby="drawModalTitle">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__dialog" role="document">
+      <button class="modal__close" type="button" data-close aria-label="Đóng">×</button>
+      <div id="drawModalBody"></div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="tooltip" id="chartTooltip" role="tooltip" hidden></div>
+
+  <script src="shared/products.js"></script>
+  <script src="shared/ticketValidator.js"></script>
+  <script src="shared/matchingEngine.js"></script>
+  <script src="shared/statisticsEngine.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
